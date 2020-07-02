@@ -1,0 +1,357 @@
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1033{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\*\generator Riched20 10.0.18362}\viewkind4\uc1 
+\pard\sa200\sl276\slmult1\f0\fs22\lang9 USB Functions Explained with Examples\par
+-------------------------------------------------------------------------------\line The Code\par
+--------------------------------------------------------------------------------\par
+unsigned char readbuff[64] absolute 0x500;\par
+unsigned char writebuff[64] absolute 0x540;\par
+char count;\par
+ \par
+void interrupt() \{\par
+\tab USB_Interrupt_Proc();\par
+\}\par
+ \par
+void main(void) \{\par
+\tab HID_Enable(&readbuff,&writebuff);       // Enable HID communication\par
+ \tab while(1) \{\par
+\tab    while(!HID_Read());\par
+\tab    for(count=0; count<64; count++) \{\par
+\tab        writebuff[count]=readbuff[count];\par
+\tab        while(!HID_Write(&writebuff,64));\par
+   \tab    \}\par
+  \tab\}\par
+ \}\par
+------------------------------------------------------------------------------------------------------\par
+Library Routines\par
+HID_Enable\par
+\par
+HID_Read\par
+\par
+HID_Write\par
+\par
+HID_Disable\par
+\par
+USB_Interrupt_Proc\par
+\par
+USB_Polling_Proc\par
+\par
+Gen_Enable\par
+\par
+Gen_Read\par
+\par
+Gen_Write\par
+\par
+USB_Break\par
+\par
+HID_Enable\par
+Prototype\par
+\par
+void HID_Enable(char *readbuff, char *writebuff);\par
+\par
+Description\par
+\par
+Enables USB HID communication.\par
+\par
+Parameters\par
+\par
+readbuff: Read Buffer.\par
+\par
+writebuff: Write Buffer.\par
+\par
+These parameters are used for HID communication.\par
+\par
+Returns\par
+\par
+Nothing.\par
+\par
+Requires\par
+\par
+Nothing.\par
+\par
+Example\par
+\par
+HID_Enable(&readbuff,&writebuff);\par
+Notes\par
+\par
+This function needs to be called before using other routines of USB HID Library.\par
+\par
+-----------------------------------------------------------------------------------------------------------------\par
+\par
+HID_Read\par
+Prototype\par
+\par
+char HID_Read(void);\par
+\par
+Description\par
+\par
+Receives message from host and stores it in the Read Buffer.\par
+\par
+Parameters\par
+\par
+None.\par
+\par
+Returns\par
+\par
+If the data reading has failed, the function returns 0. Otherwise, it returns number of characters received from the host.\par
+\par
+Requires\par
+\par
+USB HID needs to be enabled before using this function. See HID_Enable.\par
+\par
+Example\par
+\par
+// retry until success\par
+while(!HID_Read())\par
+  ;\par
+Notes\par
+\par
+None.\par
+\par
+-----------------------------------------------------------------------------------------------------------------\par
+\par
+HID_Write\par
+Prototype\par
+\par
+char HID_Write(char *writebuff, char len);\par
+\par
+Description\par
+\par
+Function sends data from Write Buffer writebuff to host.\par
+\par
+Parameters\par
+\par
+writebuff: Write Buffer, same parameter as used in initialization; see HID_Enable.\par
+\par
+len: specifies a length of the data to be transmitted.\par
+\par
+Returns\par
+\par
+If the data transmitting has failed, the function returns 0. Otherwise, it returns number of transmitted bytes.\par
+\par
+Requires\par
+\par
+USB HID needs to be enabled before using this function. See HID_Enable.\par
+\par
+Example\par
+\par
+// retry until success\par
+while(!HID_Write(&writebuff,64))\par
+  ;\par
+Notes\par
+\par
+Function call needs to be repeated as long as data is not successfuly sent.\par
+\par
+This is a blocking routine which can block the program flow. Calling USB_Break routine from the interrupt will unblock the program execution.\par
+\par
+-----------------------------------------------------------------------------------------------------------------\par
+\par
+HID_Disable\par
+Prototype\par
+\par
+void HID_Disable(void);\par
+\par
+Description\par
+\par
+Disables USB HID communication.\par
+\par
+Parameters\par
+\par
+None.\par
+\par
+Returns\par
+\par
+Nothing.\par
+\par
+Requires\par
+\par
+USB HID needs to be enabled before using this function. See HID_Enable.\par
+\par
+Example\par
+\par
+HID_Disable();\par
+Notes\par
+\par
+None.\par
+\par
+-----------------------------------------------------------------------------------------------------------------\par
+\par
+USB_Interrupt_Proc\par
+Prototype\par
+\par
+void USB_Interrupt_Proc(void);\par
+\par
+Description\par
+\par
+This routine is used for servicing various USB HID bus events. Should be called inside USB HID interrupt routine.\par
+\par
+Parameters\par
+\par
+None.\par
+\par
+Returns\par
+\par
+Nothing.\par
+\par
+Requires\par
+\par
+Nothing.\par
+\par
+Example\par
+\par
+void interrupt() \{\par
+  USB_Interrupt_Proc();\par
+\}\par
+Notes\par
+\par
+Do not use this function with USB_Polling_Proc, only one should be used. To enable servicing through interrupt, USB_INTERRUPT constant should be set (it is set by default in descriptor file).\par
+\par
+-----------------------------------------------------------------------------------------------------------------\par
+\par
+USB_Polling_Proc\par
+Prototype\par
+\par
+void USB_Polling_Proc(void);\par
+\par
+Description\par
+\par
+This routine is used for servicing various USB HID bus events. It should be periodically, preferably every 100 microseconds.\par
+\par
+Parameters\par
+\par
+None.\par
+\par
+Returns\par
+\par
+Nothing.\par
+\par
+Requires\par
+\par
+Nothing.\par
+\par
+Example\par
+\par
+while(1) \{\par
+  USB_Polling_Proc();\par
+  kk = HID_Read();\par
+  if (kk != 0) \{\par
+    for(cnt=0; cnt < 64; cnt++)\par
+      writebuff[cnt]=readbuff[cnt];\par
+  HID_Write(&writebuff,64);\par
+  \}\par
+\}\par
+Notes\par
+\par
+Do not use this functions with USB_Interrupt_Proc. To enable servicing by polling, USB_INTERRUPT constant should be set to 0 (it is located in descriptor file).\par
+\par
+-----------------------------------------------------------------------------------------------------------------\par
+\par
+Gen_Enable\par
+Prototype\par
+\par
+void Gen_Enable(char* readbuff, char* writebuff);\par
+\par
+Description\par
+\par
+Initializes the USB HID module.\par
+\par
+Parameters\par
+\par
+readbuff: Read Buffer.\par
+\par
+writebuff: Write Buffer.\par
+\par
+Returns\par
+\par
+Nothing.\par
+\par
+Requires\par
+\par
+USB HID communication needs to be enabled before using this function. See HID_Enable.\par
+\par
+Example\par
+\par
+Gen_Enable(&readbuff,&writebuff);\par
+Notes\par
+\par
+None.\par
+\par
+-----------------------------------------------------------------------------------------------------------------\par
+\par
+Gen_Read\par
+Prototype\par
+\par
+char Gen_Read(char *readbuff, char length, char ep);\par
+\par
+Description\par
+\par
+Generic routine that receives the specified data from the specified endpoint.\par
+\par
+Parameters\par
+\par
+readbuff: Received data.\par
+\par
+length: The length of the data that you wish to receive.\par
+\par
+ep: Endpoint number you want to receive the data into.\par
+\par
+Returns\par
+\par
+Returns the number of received bytes, otherwise 0.\par
+\par
+Requires\par
+\par
+USB HID needs to be enabled before using this function. See HID_Enable.\par
+\par
+Example\par
+\par
+while(Gen_Read(readbuff,64,1)==0)\par
+  ;\par
+Notes\par
+\par
+None.\par
+\par
+-----------------------------------------------------------------------------------------------------------------\par
+\par
+Gen_Write\par
+Prototype\par
+\par
+char Gen_Write(char* writebuff, char length, char ep);\par
+\par
+Description\par
+\par
+Sends the specified data to the specified endpoint.\par
+\par
+Parameters\par
+\par
+writebuff: The data that you want to send.\par
+\par
+length: the length of the data that you wish to send.\par
+\par
+ep: Endpoint number you want to send the data into.\par
+\par
+Returns\par
+\par
+Returns the number of transmitted bytes, otherwise 0.\par
+\par
+Requires\par
+\par
+USB HIDneeds to be enabled before using this function. See HID_Enable.\par
+\par
+Example:\par
+while(Gen_Write(writebuff,64,1)==0);\par
+Notes:\par
+This is a blocking routine which can block the program flow. Calling USB_Break routine from the interrupt will unblock the program execution.\par
+\par
+-----------------------------------------------------------------------------------------------------------------\par
+\par
+USB_Break\par
+Prototype\par
+void USB_Break();\par
+Description:\par
+\tab HID_Write and Gen_Write are blocking routines and they can block the program flow. Calling USB_Break() routine from the interrupt will unblock the program execution. Calling this routine from interrupt will unblock the program execution. This mechanism is similar to WDT.\par
+Parameters: None.\par
+Returns: Nothing.\par
+Requires: Nothing.\par
+\par
+}
+ 
