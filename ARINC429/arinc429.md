@@ -11,6 +11,8 @@ It defines the physical and electrical interfaces.
     - This is really good for eliminating single-bit errors in error checking
 - Data is transmitted in Return-to-Zero format (HIGH, NULL, LOW) ~ (+10V, 0V, -10V)
 
+![](https://upload.wikimedia.org/wikipedia/commons/thumb/0/03/Example_ARINC_429_decode.jpg/600px-Example_ARINC_429_decode.jpg)
+
 ## ARINC-429 Word Format:
 
 32-bit Word [31, 0]
